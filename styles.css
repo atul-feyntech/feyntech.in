@@ -1,0 +1,61 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    color: #333;
+}
+
+header {
+    background: #f4f4f4;
+    padding: 10px 20px;
+    text-align: center;
+}
+
+.logo {
+    max-width: 150px;
+    height: auto;
+    margin: 0 auto;
+}
+
+h1 {
+    margin: 10px 0;
+}
+
+.intro, .about, .products, .location {
+    padding: 20px;
+    text-align: center;
+}
+
+.intro h2, .about h2, .products h2, .location h2 {
+    color: #555;
+}
+
+button {
+    padding: 10px 20px;
+    background: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin: 10px 0;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+footer {
+    background: #333;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+}
