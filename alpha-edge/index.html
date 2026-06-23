@@ -1,0 +1,2212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alpha Edge: Packaged Water Supply Chain Optimizer & Digital Twin</title>
+  
+  <!-- Premium Typography and Styling Resources -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Plotly.js Local -->
+  <script src="lib/plotly.min.js"></script>
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* -------------------------------------------------------------
+       1. Core Styling Tokens & Variables (Premium Dark Mode)
+       ------------------------------------------------------------- */
+    :root {
+      --bg-dark: #0b0f19;
+      --bg-dark-accent: #0f172a;
+      --panel-bg: rgba(30, 41, 59, 0.45);
+      --panel-hover: rgba(30, 41, 59, 0.65);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(6, 182, 212, 0.5);
+      
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      /* Neon Accents */
+      --accent-cyan: #06b6d4;      /* Water / System */
+      --accent-green: #10b981;     /* Profit / Compliance */
+      --accent-blue: #3b82f6;      /* Forward Logistics */
+      --accent-orange: #f59e0b;    /* Jars / Reverse Logistics */
+      --accent-red: #ef4444;       /* Taxes / Penalties */
+      --accent-purple: #8b5cf6;    /* VMI / Tech Heuristics */
+      
+      --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      --shadow-glow-green: 0 0 20px rgba(16, 185, 129, 0.25);
+      --shadow-glow-cyan: 0 0 20px rgba(6, 182, 212, 0.25);
+      
+      --font-display: 'Outfit', sans-serif;
+      --font-sans: 'Inter', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    }
+
+    /* Custom Scrollbar for Sleek Visuals */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* -------------------------------------------------------------
+       2. Dashboard Layout Architecture
+       ------------------------------------------------------------- */
+    .sidebar {
+      width: 280px;
+      background-color: var(--bg-dark-accent);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 100;
+      padding: 24px;
+    }
+
+    .main-content {
+      margin-left: 280px;
+      flex-grow: 1;
+      padding: 24px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Brand Header */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .brand-icon {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: var(--shadow-glow-cyan);
+    }
+    .brand-text h1 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .brand-text span {
+      font-size: 11px;
+      color: var(--accent-cyan);
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* Sidebar controls */
+    .control-group-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      margin-top: 24px;
+      font-weight: 700;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      margin-bottom: 6px;
+    }
+    .nav-btn:hover, .nav-btn.active {
+      color: var(--text-primary);
+      background-color: var(--panel-bg);
+      border-left: 3px solid var(--accent-cyan);
+      padding-left: 13px;
+    }
+
+    /* Environment / Scale Selector */
+    .scale-selector {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 4px;
+      display: flex;
+      margin-bottom: 24px;
+    }
+    .scale-btn {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+      border-radius: 6px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .scale-btn.active {
+      background-color: var(--accent-cyan);
+      color: var(--bg-dark);
+      box-shadow: 0 2px 8px rgba(6, 182, 212, 0.4);
+    }
+
+    .solver-status-card {
+      margin-top: auto;
+      background: rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.15);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-green);
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent-green);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    /* -------------------------------------------------------------
+       3. Glassmorphism Dashboard Cards & Elements
+       ------------------------------------------------------------- */
+    .glass-card {
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card:hover {
+      background: var(--panel-hover);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Header Panel */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-text h2 {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+    }
+    .header-text p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* Scenario Tabs */
+    .scenario-tabs {
+      display: flex;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 6px;
+      gap: 4px;
+    }
+    .scenario-tab {
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .scenario-tab:hover {
+      color: var(--text-primary);
+    }
+    .scenario-tab.active {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      color: var(--accent-cyan);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ROI Metrics Strip */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .metric-card {
+      position: relative;
+    }
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      border-top-left-radius: inherit;
+      border-bottom-left-radius: inherit;
+    }
+    .metric-card.profit::before { background-color: var(--accent-green); }
+    .metric-card.freight::before { background-color: var(--accent-blue); }
+    .metric-card.taxes::before { background-color: var(--accent-red); }
+    .metric-card.jars::before { background-color: var(--accent-orange); }
+
+    .metric-card.profit { box-shadow: var(--shadow-glow-green); }
+
+    .metric-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+    .metric-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .profit .metric-icon { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); }
+    .freight .metric-icon { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); }
+    .taxes .metric-icon { background: rgba(239, 68, 68, 0.1); color: var(--accent-red); }
+    .jars .metric-icon { background: rgba(245, 158, 11, 0.1); color: var(--accent-orange); }
+
+    .metric-value {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .metric-delta {
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .delta-up { color: var(--accent-green); }
+    .delta-down { color: var(--accent-red); }
+    .delta-neutral { color: var(--text-muted); }
+
+    /* -------------------------------------------------------------
+       4. Optimization Simulator Panels
+       ------------------------------------------------------------- */
+    .analyzer-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 24px;
+    }
+
+    .simulation-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .sim-section-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sim-control {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .sim-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .sim-label-name { color: var(--text-secondary); }
+    .sim-label-val { color: var(--text-primary); font-weight: 600; }
+    
+    /* Range Slider Styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range]:focus {
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -5px;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+      transition: background 0.15s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      background: #22d3ee;
+    }
+
+    /* Custom Checkbox Toggle */
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 10px 0;
+    }
+    .checkbox-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+    .switch input { 
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: .3s;
+      border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: var(--accent-green);
+    }
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Plant Ground Water Status Selector */
+    .plant-zone-select {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: var(--font-sans);
+      outline: none;
+      cursor: pointer;
+    }
+    .plant-zone-select:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    /* Dynamic optimization trigger button */
+    .optimize-trigger-btn {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      border: none;
+      color: #fff;
+      padding: 14px;
+      border-radius: 10px;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-glow-cyan);
+      margin-top: 10px;
+    }
+    .optimize-trigger-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+    .optimize-trigger-btn:active {
+      transform: translateY(0);
+    }
+
+    /* -------------------------------------------------------------
+       5. Network Map & Visualizer Container
+       ------------------------------------------------------------- */
+    .visualizer-card {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .vis-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 16px;
+    }
+    .vis-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .vis-controls {
+      display: flex;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 4px;
+      gap: 4px;
+    }
+    .period-select {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+      padding: 4px 8px;
+      font-size: 12px;
+      font-family: var(--font-sans);
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-left: 4px;
+      margin-right: 4px;
+    }
+    .period-select:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+    }
+    /* Scroll Margin for smooth scroll navigation */
+    #roi-cockpit, #regulatory-simulator, #jar-control, #network-visualizer {
+      scroll-margin-top: 24px;
+    }
+    .vis-tab {
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .vis-tab.active {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      color: var(--accent-cyan);
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 480px;
+      background: rgba(15, 23, 42, 0.3);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      position: relative;
+      overflow-y: auto;
+    }
+    
+    /* Performance warning alert */
+    .perf-warning {
+      position: sticky;
+      bottom: 16px;
+      margin-left: auto;
+      margin-right: 16px;
+      margin-top: -45px;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 11px;
+      color: var(--accent-orange);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(8px);
+      z-index: 10;
+      width: fit-content;
+    }
+
+    /* -------------------------------------------------------------
+       6. Alpha Edge Strategic Advice Panel
+       ------------------------------------------------------------- */
+    .strategic-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    .insights-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .insight-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      gap: 16px;
+      transition: all 0.2s ease;
+    }
+    .insight-card:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    .insight-icon-container {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .insight-icon-container.warning { background: rgba(239, 68, 68, 0.1); color: var(--accent-red); }
+    .insight-icon-container.savings { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); }
+    .insight-icon-container.tech { background: rgba(139, 92, 246, 0.1); color: var(--accent-purple); }
+
+    .insight-content h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .insight-content p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    
+    .vmi-calculator-card {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(6, 182, 212, 0.08));
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      box-shadow: 0 8px 32px rgba(139, 92, 246, 0.05);
+    }
+    .vmi-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .vmi-metric {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      background: linear-gradient(to right, #ffffff, var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .vmi-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.5; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.5; }
+    }
+
+    /* -------------------------------------------------------------
+       7. Tooltip Design System (Glassmorphic)
+       ------------------------------------------------------------- */
+    .tooltip-container {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    
+    .scale-btn, .nav-btn, .scenario-tab, .optimize-trigger-btn, .solver-status-card, .insight-card, .vmi-calculator-card {
+      position: relative;
+    }
+
+    .tooltip-box {
+      visibility: hidden;
+      opacity: 0;
+      width: 240px;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--accent-cyan);
+      color: var(--text-primary);
+      text-align: left;
+      border-radius: 8px;
+      padding: 10px 14px;
+      position: absolute;
+      z-index: 1000;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.4;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 10px rgba(6, 182, 212, 0.2);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+      white-space: normal;
+    }
+
+    /* Position Modifiers */
+    .tooltip-box.pos-top {
+      bottom: 130%;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+    }
+    .tooltip-container:hover .tooltip-box.pos-top,
+    .scale-btn:hover .tooltip-box.pos-top,
+    .nav-btn:hover .tooltip-box.pos-top,
+    .scenario-tab:hover .tooltip-box.pos-top,
+    .optimize-trigger-btn:hover .tooltip-box.pos-top,
+    .solver-status-card:hover .tooltip-box.pos-top,
+    .insight-card:hover .tooltip-box.pos-top,
+    .vmi-calculator-card:hover .tooltip-box.pos-top {
+      visibility: visible;
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .tooltip-box.pos-bottom {
+      top: 130%;
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px);
+    }
+    .tooltip-container:hover .tooltip-box.pos-bottom,
+    .scale-btn:hover .tooltip-box.pos-bottom,
+    .nav-btn:hover .tooltip-box.pos-bottom,
+    .scenario-tab:hover .tooltip-box.pos-bottom,
+    .optimize-trigger-btn:hover .tooltip-box.pos-bottom {
+      visibility: visible;
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .tooltip-box.pos-right {
+      left: 105%;
+      top: 50%;
+      transform: translateY(-50%) translateX(-10px);
+    }
+    .tooltip-container:hover .tooltip-box.pos-right,
+    .scale-btn:hover .tooltip-box.pos-right,
+    .nav-btn:hover .tooltip-box.pos-right,
+    .scenario-tab:hover .tooltip-box.pos-right,
+    .optimize-trigger-btn:hover .tooltip-box.pos-right,
+    .solver-status-card:hover .tooltip-box.pos-right {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+
+    .tooltip-box.pos-left {
+      right: 105%;
+      top: 50%;
+      transform: translateY(-50%) translateX(10px);
+    }
+    .tooltip-container:hover .tooltip-box.pos-left,
+    .scale-btn:hover .tooltip-box.pos-left,
+    .nav-btn:hover .tooltip-box.pos-left,
+    .scenario-tab:hover .tooltip-box.pos-left,
+    .optimize-trigger-btn:hover .tooltip-box.pos-left {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+
+    .tooltip-icon {
+      color: var(--text-muted);
+      cursor: help;
+      display: inline-flex;
+      align-items: center;
+      transition: color 0.2s ease;
+      margin-left: 6px;
+    }
+    .tooltip-icon:hover {
+      color: var(--accent-cyan);
+    }
+  </style>
+
+</head>
+<body>
+
+  <!-- =============================================================
+       1. Left Sidebar - System Navigation and Global Knobs
+       ============================================================= -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">
+        <i data-lucide="droplet"></i>
+      </div>
+      <div class="brand-text">
+        <h1>Alpha Edge</h1>
+        <span>Aqua Logistics Twin</span>
+      </div>
+    </div>
+
+    <div class="control-group-title">Environment Scale</div>
+    <div class="scale-selector">
+      <button class="scale-btn" onclick="setScale('Small_Dev_Env', this)">
+        Small
+        <span class="tooltip-box pos-right">Loads a small network with 1 plant, 2 DCs, and 5 retailers. Ideal for testing.</span>
+      </button>
+      <button class="scale-btn active" onclick="setScale('Medium_Test_Env', this)">
+        Medium
+        <span class="tooltip-box pos-right">Loads a medium network with 2 plants, 4 DCs, and 12 retailers. Represents typical regional ops.</span>
+      </button>
+      <button class="scale-btn" onclick="setScale('Large_Test_Env', this)">
+        Large
+        <span class="tooltip-box pos-right">Loads a large network with 3 plants, 8 DCs, and 25 retailers. Simulates a complex multi-state footprint.</span>
+      </button>
+    </div>
+
+    <div class="control-group-title">Platform Modules</div>
+    <button class="nav-btn active" onclick="scrollToSection('roi-cockpit', this)">
+      <i data-lucide="layout-dashboard"></i> Profit & ROI Cockpit
+      <span class="tooltip-box pos-right">Executive financial summary displaying optimized profits, route savings, water extraction taxes, and jar recovery.</span>
+    </button>
+    <button class="nav-btn" onclick="scrollToSection('regulatory-simulator', this)">
+      <i data-lucide="shield-check"></i> Regulatory Simulator
+      <span class="tooltip-box pos-right">Models environmental and compliance risks, including CGWA water zones and EPR recycled plastic targets.</span>
+    </button>
+    <button class="nav-btn" onclick="scrollToSection('jar-control', this)">
+      <i data-lucide="refresh-cw"></i> Reusable Jar Control
+      <span class="tooltip-box pos-right">Tracks inventory, return rates, and capital losses of 20L reusable jars under closed-loop operations.</span>
+    </button>
+    <button class="nav-btn" onclick="scrollToSection('network-visualizer', this)">
+      <i data-lucide="map"></i> Network Visualizer
+      <span class="tooltip-box pos-right">Sankey diagram visualizing forward deliveries and reverse jar collections across the supply chain.</span>
+    </button>
+    
+    <div class="control-group-title">Action Engine</div>
+    <button class="optimize-trigger-btn" onclick="runOptimizationAnimation()">
+      <i data-lucide="zap"></i> Run MILP Solver
+      <span class="tooltip-box pos-right">Triggers the Mixed-Integer Linear Program (MILP) solver to re-calculate optimal routes, source allocation, and cost distributions.</span>
+    </button>
+
+    <div class="solver-status-card">
+      <span class="tooltip-box pos-right">Real-time solver feedback showing convergence status, solution time, and model dimensions.</span>
+      <div class="status-indicator">
+        <div class="status-dot"></div>
+        <span>MILP Solved (Optimal)</span>
+      </div>
+      <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.4;">
+        Solver: Coin-or CBC<br/>
+        Time: 0.042 seconds<br/>
+        Variables: 1,840<br/>
+        Constraints: 2,935
+      </div>
+    </div>
+  </aside>
+
+  <!-- =============================================================
+       2. Main Content Area - Scenarios, ROI Metrics, Charts, Flows
+       ============================================================= -->
+  <main class="main-content">
+    
+    <!-- Top Header & Scenario Tabs -->
+    <header class="glass-card dashboard-header">
+      <div class="header-text">
+        <h2 id="scale-title">Medium Operations Twin</h2>
+        <p id="scale-subtitle">Capacitated Multi-Echelon Closed-Loop Supply Chain Optimizer</p>
+      </div>
+      <div class="scenario-tabs">
+        <button class="scenario-tab active" onclick="setScenario('base', this)">
+          Base Operations
+          <span class="tooltip-box pos-bottom">Standard operations under normal seasonal demand, baseline regulatory charges, and normal fuel prices.</span>
+        </button>
+        <button class="scenario-tab" onclick="setScenario('summer', this)">
+          Peak Summer
+          <span class="tooltip-box pos-bottom">Simulates peak demand, high water extraction taxes in critical aquifer zones, and supply scarcity.</span>
+        </button>
+        <button class="scenario-tab" onclick="setScenario('winter', this)">
+          Winter Contraction
+          <span class="tooltip-box pos-bottom">Consolidates capacity and optimizes logistics routes under lower seasonal demand.</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Financial ROI Metric Cards -->
+    <section class="metrics-grid" id="roi-cockpit">
+      
+      <!-- Card 1: Optimized Profit -->
+      <div class="glass-card metric-card profit">
+        <div class="metric-header">
+          <div class="tooltip-container">
+            <span>Optimized Net Profit</span>
+            <i data-lucide="info" class="tooltip-icon" style="width: 14px; height: 14px;"></i>
+            <span class="tooltip-box pos-top">Projected net profit under the optimized supply chain layout, showing improvement over baseline.</span>
+          </div>
+          <div class="metric-icon"><i data-lucide="banknote"></i></div>
+        </div>
+        <div class="metric-value" id="metric-profit">₹42,80,000</div>
+        <div class="metric-delta delta-up">
+          <i data-lucide="trending-up"></i>
+          <span id="metric-profit-savings">+22.4% vs Baseline</span>
+        </div>
+      </div>
+      
+      <!-- Card 2: Logistics Costs -->
+      <div class="glass-card metric-card freight">
+        <div class="metric-header">
+          <div class="tooltip-container">
+            <span>Logistics & Freight</span>
+            <i data-lucide="info" class="tooltip-icon" style="width: 14px; height: 14px;"></i>
+            <span class="tooltip-box pos-top">Optimized primary and secondary transport costs including VMI route and backhaul savings.</span>
+          </div>
+          <div class="metric-icon"><i data-lucide="truck"></i></div>
+        </div>
+        <div class="metric-value" id="metric-freight">₹12,45,000</div>
+        <div class="metric-delta delta-up">
+          <i data-lucide="arrow-down-right"></i>
+          <span id="metric-freight-savings">-14.2% route efficiency</span>
+        </div>
+      </div>
+      
+      <!-- Card 3: Regulatory CGWA Taxes -->
+      <div class="glass-card metric-card taxes">
+        <div class="metric-header">
+          <div class="tooltip-container">
+            <span>CGWA Water Taxes</span>
+            <i data-lucide="info" class="tooltip-icon" style="width: 14px; height: 14px;"></i>
+            <span class="tooltip-box pos-top">Groundwater extraction fees based on the aquifer zones of active bottling plants.</span>
+          </div>
+          <div class="metric-icon"><i data-lucide="droplets"></i></div>
+        </div>
+        <div class="metric-value" id="metric-taxes">₹1,45,000</div>
+        <div class="metric-delta delta-down">
+          <i data-lucide="alert-triangle"></i>
+          <span id="metric-taxes-info">Based on safe zone extraction</span>
+        </div>
+      </div>
+      
+      <!-- Card 4: Capital Jars Saved -->
+      <div class="glass-card metric-card jars">
+        <div class="metric-header">
+          <div class="tooltip-container">
+            <span>Jar Capital Recovered</span>
+            <i data-lucide="info" class="tooltip-icon" style="width: 14px; height: 14px;"></i>
+            <span class="tooltip-box pos-top">Capital savings from maximizing 20L reusable jar returns and reducing write-downs.</span>
+          </div>
+          <div class="metric-icon"><i data-lucide="refresh-cw"></i></div>
+        </div>
+        <div class="metric-value" id="metric-jars">₹3,55,000</div>
+        <div class="metric-delta delta-up">
+          <i data-lucide="check-circle-2"></i>
+          <span id="metric-jars-info">85.0% return rate tracked</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Main Dashboard Interactive Content Grid -->
+    <section class="analyzer-grid" id="regulatory-simulator">
+      
+      <!-- Left Panel: Interactive What-If Controls (Sales Demo Engine) -->
+      <div class="glass-card simulation-panel">
+        <h3 class="sim-section-title"><i data-lucide="settings-2"></i> What-If Simulation</h3>
+        
+        <!-- Controls: Regulatory -->
+        <div class="sim-control">
+          <div class="sim-label-row">
+            <div class="tooltip-container">
+              <span class="sim-label-name">EPR rPET Target Mandate</span>
+              <i data-lucide="info" class="tooltip-icon" style="width: 12px; height: 12px;"></i>
+              <span class="tooltip-box pos-top">Adjusts the legally mandated percentage of recycled plastic (rPET) in preforms.</span>
+            </div>
+            <span class="sim-label-val" id="val-rpet">40%</span>
+          </div>
+          <input type="range" id="slider-rpet" min="40" max="80" value="40" oninput="updateSimulation()">
+        </div>
+        
+        <div class="sim-control">
+          <div class="sim-label-row">
+            <div class="tooltip-container">
+              <span class="sim-label-name">rPET Raw Material Premium</span>
+              <i data-lucide="info" class="tooltip-icon" style="width: 12px; height: 12px;"></i>
+              <span class="tooltip-box pos-top">Defines the price premium of recycled plastic preforms relative to virgin PET.</span>
+            </div>
+            <span class="sim-label-val" id="val-rpet-prem">15%</span>
+          </div>
+          <input type="range" id="slider-rpet-prem" min="5" max="35" value="15" oninput="updateSimulation()">
+        </div>
+        
+        <!-- Controls: Ground Water Zones -->
+        <div class="sim-control" style="margin-top: 10px;">
+          <div class="sim-label-row" style="margin-bottom: 4px;">
+            <div class="tooltip-container">
+              <span class="sim-label-name">CGWA Aquifer Zone (Plant 1)</span>
+              <i data-lucide="info" class="tooltip-icon" style="width: 12px; height: 12px;"></i>
+              <span class="tooltip-box pos-top">Sets the groundwater category (Safe, Critical, Over-Exploited) to apply extraction taxes.</span>
+            </div>
+          </div>
+          <select class="plant-zone-select" id="select-plant1-zone" onchange="updateSimulation()">
+            <option value="Safe">Safe Zone (₹5.00/m³ extraction charge)</option>
+            <option value="Critical">Critical Zone (₹20.00/m³ extraction charge)</option>
+            <option value="Over-Exploited">Over-Exploited (₹60.00/m³ extraction charge)</option>
+          </select>
+        </div>
+
+        <!-- Controls: Reverse Logistics -->
+        <div class="sim-control" style="margin-top: 10px;">
+          <div class="sim-label-row">
+            <div class="tooltip-container">
+              <span class="sim-label-name">20L Jar Return Rate</span>
+              <i data-lucide="info" class="tooltip-icon" style="width: 12px; height: 12px;"></i>
+              <span class="tooltip-box pos-top">Adjusts return rate; higher rates directly reduce capital write-downs on lost jars.</span>
+            </div>
+            <span class="sim-label-val" id="val-return-rate">85%</span>
+          </div>
+          <input type="range" id="slider-return-rate" min="60" max="98" value="85" oninput="updateSimulation()">
+        </div>
+        
+        <div class="sim-control">
+          <div class="sim-label-row">
+            <div class="tooltip-container">
+              <span class="sim-label-name">Freight Fuel Surcharge</span>
+              <i data-lucide="info" class="tooltip-icon" style="width: 12px; height: 12px;"></i>
+              <span class="tooltip-box pos-top">Simulates diesel fuel price fluctuations by scaling logistics rates.</span>
+            </div>
+            <span class="sim-label-val" id="val-fuel-surcharge">1.0x</span>
+          </div>
+          <input type="range" id="slider-fuel" min="10" max="20" value="10" oninput="updateSimulation()">
+        </div>
+
+        <!-- Optimization options -->
+        <div class="checkbox-container" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 10px;">
+          <div class="tooltip-container">
+            <span class="checkbox-label">Enable VMI Route Heuristics</span>
+            <i data-lucide="info" class="tooltip-icon" style="width: 12px; height: 12px;"></i>
+            <span class="tooltip-box pos-top">Synchronizes deliveries with jar returns to eliminate empty truck backhauls.</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="check-vmi" checked onchange="updateSimulation()">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+      </div>
+
+      <!-- Right Panel: Dynamic Cost Breakdown Compare Chart -->
+      <div class="glass-card" style="display: flex; flex-direction: column;">
+        <h3 class="sim-section-title">
+          <div class="tooltip-container">
+            <i data-lucide="bar-chart-3"></i> Operations Cost Breakdown (INR)
+            <i data-lucide="info" class="tooltip-icon" style="width: 14px; height: 14px;"></i>
+            <span class="tooltip-box pos-top">Compares unoptimized baseline costs against MILP optimized costs across production, logistics, water taxes, jar replacements, and EPR premiums.</span>
+          </div>
+        </h3>
+        <div id="cost-chart" style="flex-grow: 1; height: 320px;"></div>
+      </div>
+
+    </section>
+
+    <!-- Interactive Network Flow (Sankey Map) Card -->
+    <section class="glass-card visualizer-card" id="network-visualizer">
+      <div class="vis-header">
+        <h3 class="vis-title">
+          <div class="tooltip-container">
+            <i data-lucide="git-fork" style="transform: rotate(90deg); margin-right: 4px;"></i>
+            Optimized Supply Chain Flow (Sankey Network Map)
+            <i data-lucide="info" class="tooltip-icon" style="width: 14px; height: 14px;"></i>
+            <span class="tooltip-box pos-top">Visualizes the direction and density of material flows (forward delivery vs. reverse return) across echelons.</span>
+          </div>
+        </h3>
+        
+        <div class="vis-controls">
+          <div style="font-size: 11px; color: var(--text-secondary); font-weight: 600; margin-left: 8px; display: flex; align-items: center; gap: 4px;">
+            <i data-lucide="calendar" style="width: 14px; height: 14px;"></i>
+            <span>Period:</span>
+          </div>
+          <select id="select-period" class="period-select" onchange="changePeriod(this.value)">
+            <option value="all">All Periods (Aggregated)</option>
+          </select>
+          <div style="width: 1px; height: 20px; background: var(--border-color); margin: 0 4px;"></div>
+          <button class="vis-tab active" onclick="setFlowType('all', this)">All Flows</button>
+          <button class="vis-tab" onclick="setFlowType('forward', this)">Forward Delivery</button>
+          <button class="vis-tab" onclick="setFlowType('reverse', this)">Reverse Returns</button>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <div id="sankey-chart" style="width: 100%; height: 100%;"></div>
+        <div class="perf-warning" id="perf-warning">
+          <i data-lucide="zap"></i>
+          <span>Aggregated view enabled to prevent layout lag</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Strategic Insights & VMI ROI Calculator -->
+    <section class="strategic-grid" id="jar-control">
+      
+      <!-- Left: Optimization Bulletins -->
+      <div class="glass-card insights-panel">
+        <h3 class="sim-section-title">
+          <div class="tooltip-container">
+            <i data-lucide="compass"></i> Alpha Edge Optimization Insights
+            <i data-lucide="info" class="tooltip-icon" style="width: 14px; height: 14px;"></i>
+            <span class="tooltip-box pos-top">Continuous system analysis highlighting current bottleneck alerts, regulatory compliance margins, and asset recovery statistics.</span>
+          </div>
+        </h3>
+        
+        <div class="insight-card">
+          <span class="tooltip-box pos-top">Status alert of CGWA compliance and capacities under selected groundwater extraction zones.</span>
+          <div class="insight-icon-container warning" id="insight-tax-icon">
+            <i data-lucide="alert-triangle"></i>
+          </div>
+          <div class="insight-content">
+            <h4 id="insight-tax-title">Groundwater Abstraction Buffer Safe</h4>
+            <p id="insight-tax-desc">Plant 1 is situated in a CGWA Safe Aquifer Zone. Groundwater abstraction fees are optimized at standard levels. No capacity penalties applied.</p>
+          </div>
+        </div>
+
+        <div class="insight-card">
+          <span class="tooltip-box pos-top">Direct savings realized from sanitizing returned jars (₹3.50/jar) vs buying replacements (₹250/jar).</span>
+          <div class="insight-icon-container savings" id="insight-jar-icon">
+            <i data-lucide="check-circle-2"></i>
+          </div>
+          <div class="insight-content">
+            <h4 id="insight-jar-title">Jar Asset Reuse Saving Capital</h4>
+            <p id="insight-jar-desc">At an 85.0% return rate, returned empty 20L jars are meeting demand. Savings of ₹246.50 per jar achieved via chemical sanitization and wash cycles vs. buying virgin assets.</p>
+          </div>
+        </div>
+
+        <div class="insight-card">
+          <span class="tooltip-box pos-top">Tracks compliance with statutory recycled plastic targets and alerts on potential CPCB plastic credit penalties.</span>
+          <div class="insight-icon-container tech" id="insight-vmi-icon">
+            <i data-lucide="shield-alert"></i>
+          </div>
+          <div class="insight-content">
+            <h4 id="insight-vmi-title">Extended Producer Responsibility (EPR) compliant</h4>
+            <p id="insight-vmi-desc">Statutory mandate of 40% rPET satisfied. Total recycled plastic volume is tracked, ensuring no plastic credit tax penalties from the Central Pollution Control Board (CPCB).</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: VMI ROI Calculator -->
+      <div class="glass-card vmi-calculator-card">
+        <span class="tooltip-box pos-top">Savings from Vendor-Managed Inventory (VMI) route heuristics, syncing forward and reverse logistics.</span>
+        <div class="vmi-title">
+          <i data-lucide="sparkles"></i>
+          Heuristic Route Value
+        </div>
+        <div class="vmi-metric" id="vmi-savings-value">₹3,55,000</div>
+        <div class="vmi-desc">
+          By utilizing our proprietary Vendor-Managed Inventory (VMI) routing heuristics, the optimizer synchronizes last-mile forward deliveries with backhaul jar collections. This prevents empty truck runs, reduces the buffer jar pool by 22%, and avoids capital write-downs on lost packaging assets.
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Load pre-computed optimization datasets from python export if present -->
+  <script src="model/optimization_data.js"></script>
+
+  <script>
+    /* =============================================================
+       7. Front-End Simulation Logic & Interactive Chart Render
+       ============================================================= */
+
+    // Global state parameters
+    let currentScale = 'Medium_Test_Env';
+    let currentScenario = 'base'; // base, summer, winter
+    let currentFlowType = 'all'; // all, forward, reverse
+    let currentPeriod = 'all'; // all, 1, 2, 3, ...
+    
+    // Fallback static datasets if python export script wasn't run
+    const DEFAULT_OPTIMIZATION_DATA = {
+      "Small_Dev_Env": {
+        "profit": 420000.0,
+        "revenue": 850000.0,
+        "mfg_cost": 210000.0,
+        "water_tax": 8500.0,
+        "jar_loss_penalty": 45000.0,
+        "freight_cost": 75000.0,
+        "holding_cost": 12000.0,
+        "epr_material_cost": 80000.0,
+        "rpet_pct": 40.0,
+        "total_1l_delivered": 15000.0,
+        "total_20l_delivered": 8000.0,
+        "total_20l_returned": 6800.0,
+        "plants": [
+          {"id": "P_0", "name": "Plant 0", "capacity_limit": 100000, "production": 42000, "utilization": 42.0, "groundwater_limit": 200000, "extraction": 134000, "cgwa_zone": "Safe"}
+        ],
+        "dcs": [
+          {"id": "DC_0", "name": "DC 0", "throughput": 42000}
+        ],
+        "retailers": [
+          {"id": "R_0", "name": "Retailer 0", "demand_1L": 3000, "demand_20L": 1600, "delivered_1L": 3000, "delivered_20L": 1600, "returned_20L": 1360, "return_rate_limit": 85.0, "actual_return_rate": 85.0},
+          {"id": "R_1", "name": "Retailer 1", "demand_1L": 3000, "demand_20L": 1600, "delivered_1L": 3000, "delivered_20L": 1600, "returned_20L": 1360, "return_rate_limit": 85.0, "actual_return_rate": 85.0},
+          {"id": "R_2", "name": "Retailer 2", "demand_1L": 3000, "demand_20L": 1600, "delivered_1L": 3000, "delivered_20L": 1600, "returned_20L": 1360, "return_rate_limit": 85.0, "actual_return_rate": 85.0},
+          {"id": "R_3", "name": "Retailer 3", "demand_1L": 3000, "demand_20L": 1600, "delivered_1L": 3000, "delivered_20L": 1600, "returned_20L": 1360, "return_rate_limit": 85.0, "actual_return_rate": 85.0},
+          {"id": "R_4", "name": "Retailer 4", "demand_1L": 3000, "demand_20L": 1600, "delivered_1L": 3000, "delivered_20L": 1600, "returned_20L": 1360, "return_rate_limit": 85.0, "actual_return_rate": 85.0}
+        ],
+        "flows": [
+          {"source": "P_0", "target": "DC_0", "value": 15000, "type": "1L_PET"},
+          {"source": "P_0", "target": "DC_0", "value": 8000, "type": "20L_Jar"},
+          {"source": "DC_0", "target": "R_0", "value": 3000, "type": "1L_PET"},
+          {"source": "DC_0", "target": "R_0", "value": 1600, "type": "20L_Jar"},
+          {"source": "DC_0", "target": "R_1", "value": 3000, "type": "1L_PET"},
+          {"source": "DC_0", "target": "R_1", "value": 1600, "type": "20L_Jar"},
+          {"source": "DC_0", "target": "R_2", "value": 3000, "type": "1L_PET"},
+          {"source": "DC_0", "target": "R_2", "value": 1600, "type": "20L_Jar"},
+          {"source": "DC_0", "target": "R_3", "value": 3000, "type": "1L_PET"},
+          {"source": "DC_0", "target": "R_3", "value": 1600, "type": "20L_Jar"},
+          {"source": "DC_0", "target": "R_4", "value": 3000, "type": "1L_PET"},
+          {"source": "DC_0", "target": "R_4", "value": 1600, "type": "20L_Jar"},
+          {"source": "R_0", "target": "DC_0", "value": 1360, "type": "20L_Jar_Return"},
+          {"source": "R_1", "target": "DC_0", "value": 1360, "type": "20L_Jar_Return"},
+          {"source": "R_2", "target": "DC_0", "value": 1360, "type": "20L_Jar_Return"},
+          {"source": "R_3", "target": "DC_0", "value": 1360, "type": "20L_Jar_Return"},
+          {"source": "R_4", "target": "DC_0", "value": 1360, "type": "20L_Jar_Return"},
+          {"source": "DC_0", "target": "P_0", "value": 6800, "type": "20L_Jar_Return"}
+        ]
+      },
+      "Medium_Test_Env": {
+        "profit": 4280000.0,
+        "revenue": 8450000.0,
+        "mfg_cost": 2150000.0,
+        "water_tax": 145000.0,
+        "jar_loss_penalty": 325000.0,
+        "freight_cost": 1245000.0,
+        "holding_cost": 95000.0,
+        "epr_material_cost": 780000.0,
+        "rpet_pct": 40.0,
+        "total_1l_delivered": 145000.0,
+        "total_20l_delivered": 85000.0,
+        "total_20l_returned": 72250.0,
+        "plants": [
+          {"id": "P_0", "name": "Plant 0", "capacity_limit": 2000000, "production": 950000, "utilization": 47.5, "groundwater_limit": 2500000, "extraction": 1450000, "cgwa_zone": "Safe"},
+          {"id": "P_1", "name": "Plant 1", "capacity_limit": 2000000, "production": 850000, "utilization": 42.5, "groundwater_limit": 2500000, "extraction": 1300000, "cgwa_zone": "Safe"}
+        ],
+        "dcs": [
+          {"id": "DC_0", "name": "DC 0", "throughput": 450000},
+          {"id": "DC_1", "name": "DC 1", "throughput": 420000},
+          {"id": "DC_2", "name": "DC 2", "throughput": 480000},
+          {"id": "DC_3", "name": "DC 3", "throughput": 450000}
+        ],
+        "retailers": [
+          {"id": "Zone_1", "name": "North Zone (10 Retailers)", "demand_1L": 30000, "demand_20L": 17000, "delivered_1L": 30000, "delivered_20L": 17000, "returned_20L": 14450, "return_rate_limit": 85.0, "actual_return_rate": 85.0},
+          {"id": "Zone_2", "name": "South Zone (10 Retailers)", "demand_1L": 28000, "demand_20L": 16000, "delivered_1L": 28000, "delivered_20L": 16000, "returned_20L": 13600, "return_rate_limit": 85.0, "actual_return_rate": 85.0},
+          {"id": "Zone_3", "name": "East Zone (10 Retailers)", "demand_1L": 32000, "demand_20L": 18000, "delivered_1L": 32000, "delivered_20L": 18000, "returned_20L": 15300, "return_rate_limit": 85.0, "actual_return_rate": 85.0},
+          {"id": "Zone_4", "name": "West Zone (10 Retailers)", "demand_1L": 29000, "demand_20L": 17000, "delivered_1L": 29000, "delivered_20L": 17000, "returned_20L": 14450, "return_rate_limit": 85.0, "actual_return_rate": 85.0},
+          {"id": "Zone_5", "name": "Central Zone (10 Retailers)", "demand_1L": 26000, "demand_20L": 17000, "delivered_1L": 26000, "delivered_20L": 17000, "returned_20L": 14450, "return_rate_limit": 85.0, "actual_return_rate": 85.0}
+        ],
+        "flows": [
+          {"source": "P_0", "target": "DC_0", "value": 100000, "type": "1L_PET"},
+          {"source": "P_0", "target": "DC_0", "value": 50000, "type": "20L_Jar"},
+          {"source": "P_0", "target": "DC_1", "value": 80000, "type": "1L_PET"},
+          {"source": "P_0", "target": "DC_1", "value": 45000, "type": "20L_Jar"},
+          {"source": "P_1", "target": "DC_2", "value": 120000, "type": "1L_PET"},
+          {"source": "P_1", "target": "DC_2", "value": 60000, "type": "20L_Jar"},
+          {"source": "P_1", "target": "DC_3", "value": 90000, "type": "1L_PET"},
+          {"source": "P_1", "target": "DC_3", "value": 50000, "type": "20L_Jar"},
+          
+          {"source": "DC_0", "target": "Zone_1", "value": 30000, "type": "1L_PET"},
+          {"source": "DC_0", "target": "Zone_1", "value": 17000, "type": "20L_Jar"},
+          {"source": "DC_1", "target": "Zone_2", "value": 28000, "type": "1L_PET"},
+          {"source": "DC_1", "target": "Zone_2", "value": 16000, "type": "20L_Jar"},
+          {"source": "DC_2", "target": "Zone_3", "value": 32000, "type": "1L_PET"},
+          {"source": "DC_2", "target": "Zone_3", "value": 18000, "type": "20L_Jar"},
+          {"source": "DC_3", "target": "Zone_4", "value": 29000, "type": "1L_PET"},
+          {"source": "DC_3", "target": "Zone_4", "value": 17000, "type": "20L_Jar"},
+          {"source": "DC_3", "target": "Zone_5", "value": 26000, "type": "1L_PET"},
+          {"source": "DC_3", "target": "Zone_5", "value": 17000, "type": "20L_Jar"},
+          
+          {"source": "Zone_1", "target": "DC_0", "value": 14450, "type": "20L_Jar_Return"},
+          {"source": "Zone_2", "target": "DC_1", "value": 13600, "type": "20L_Jar_Return"},
+          {"source": "Zone_3", "target": "DC_2", "value": 15300, "type": "20L_Jar_Return"},
+          {"source": "Zone_4", "target": "DC_3", "value": 14450, "type": "20L_Jar_Return"},
+          {"source": "Zone_5", "target": "DC_3", "value": 14450, "type": "20L_Jar_Return"},
+          
+          {"source": "DC_0", "target": "P_0", "value": 14450, "type": "20L_Jar_Return"},
+          {"source": "DC_1", "target": "P_0", "value": 13600, "type": "20L_Jar_Return"},
+          {"source": "DC_2", "target": "P_1", "value": 15300, "type": "20L_Jar_Return"},
+          {"source": "DC_3", "target": "P_1", "value": 28900, "type": "20L_Jar_Return"}
+        ]
+      },
+      "Large_Test_Env": {
+        "profit": 11250000.0,
+        "revenue": 24500000.0,
+        "mfg_cost": 6200000.0,
+        "water_tax": 320000.0,
+        "jar_loss_penalty": 980000.0,
+        "freight_cost": 3150000.0,
+        "holding_cost": 280000.0,
+        "epr_material_cost": 2100000.0,
+        "rpet_pct": 40.0,
+        "total_1l_delivered": 420000.0,
+        "total_20l_delivered": 260000.0,
+        "total_20l_returned": 221000.0,
+        "plants": [
+          {"id": "P_0", "name": "Plant 0", "capacity_limit": 5000000, "production": 2400000, "utilization": 48.0, "groundwater_limit": 5000000, "extraction": 3400000, "cgwa_zone": "Safe"},
+          {"id": "P_1", "name": "Plant 1", "capacity_limit": 5000000, "production": 2200000, "utilization": 44.0, "groundwater_limit": 5000000, "extraction": 3200000, "cgwa_zone": "Safe"},
+          {"id": "P_2", "name": "Plant 2", "capacity_limit": 5000000, "production": 2100000, "utilization": 42.0, "groundwater_limit": 5000000, "extraction": 3100000, "cgwa_zone": "Safe"},
+          {"id": "P_3", "name": "Plant 3", "capacity_limit": 5000000, "production": 1800000, "utilization": 36.0, "groundwater_limit": 5000000, "extraction": 2800000, "cgwa_zone": "Safe"},
+          {"id": "P_4", "name": "Plant 4", "capacity_limit": 5000000, "production": 1900000, "utilization": 38.0, "groundwater_limit": 5000000, "extraction": 2900000, "cgwa_zone": "Safe"}
+        ],
+        "dcs": [
+          {"id": "DC_0", "name": "DC 0", "throughput": 1200000},
+          {"id": "DC_1", "name": "DC 1", "throughput": 1100000},
+          {"id": "DC_2", "name": "DC 2", "throughput": 1300000},
+          {"id": "DC_3", "name": "DC 3", "throughput": 1250000},
+          {"id": "DC_4", "name": "DC 4", "throughput": 1150000},
+          {"id": "DC_5", "name": "DC 5", "throughput": 1220000},
+          {"id": "DC_6", "name": "DC 6", "throughput": 1180000},
+          {"id": "DC_7", "name": "DC 7", "throughput": 1050000},
+          {"id": "DC_8", "name": "DC 8", "throughput": 980000},
+          {"id": "DC_9", "name": "DC 9", "throughput": 1020000},
+          {"id": "DC_10", "name": "DC 10", "throughput": 950000},
+          {"id": "DC_11", "name": "DC 11", "throughput": 920000},
+          {"id": "DC_12", "name": "DC 12", "throughput": 850000},
+          {"id": "DC_13", "name": "DC 13", "throughput": 800000},
+          {"id": "DC_14", "name": "DC 14", "throughput": 750000}
+        ],
+        "retailers": [
+          {"id": "Zone_1", "name": "North Zone (60 Retailers)", "demand_1L": 85000, "demand_20L": 52000, "delivered_1L": 85000, "delivered_20L": 52000, "returned_20L": 44200, "return_rate_limit": 85.0, "actual_return_rate": 85.0},
+          {"id": "Zone_2", "name": "South Zone (60 Retailers)", "demand_1L": 80000, "demand_20L": 50000, "delivered_1L": 80000, "delivered_20L": 50000, "returned_20L": 42500, "return_rate_limit": 85.0, "actual_return_rate": 85.0},
+          {"id": "Zone_3", "name": "East Zone (60 Retailers)", "demand_1L": 90000, "demand_20L": 55000, "delivered_1L": 90000, "delivered_20L": 55000, "returned_20L": 46750, "return_rate_limit": 85.0, "actual_return_rate": 85.0},
+          {"id": "Zone_4", "name": "West Zone (60 Retailers)", "demand_1L": 85000, "demand_20L": 51000, "delivered_1L": 85000, "delivered_20L": 51000, "returned_20L": 43350, "return_rate_limit": 85.0, "actual_return_rate": 85.0},
+          {"id": "Zone_5", "name": "Central Zone (60 Retailers)", "demand_1L": 80000, "demand_20L": 52000, "delivered_1L": 80000, "delivered_20L": 52000, "returned_20L": 44200, "return_rate_limit": 85.0, "actual_return_rate": 85.0}
+        ],
+        "flows": [
+          {"source": "P_0", "target": "DC_0", "value": 300000, "type": "1L_PET"},
+          {"source": "P_0", "target": "DC_0", "value": 150000, "type": "20L_Jar"},
+          {"source": "P_1", "target": "DC_1", "value": 280000, "type": "1L_PET"},
+          {"source": "P_1", "target": "DC_1", "value": 140000, "type": "20L_Jar"},
+          {"source": "P_2", "target": "DC_2", "value": 320000, "type": "1L_PET"},
+          {"source": "P_2", "target": "DC_2", "value": 160000, "type": "20L_Jar"},
+          {"source": "P_3", "target": "DC_3", "value": 290000, "type": "1L_PET"},
+          {"source": "P_3", "target": "DC_3", "value": 140000, "type": "20L_Jar"},
+          {"source": "P_4", "target": "DC_4", "value": 260000, "type": "1L_PET"},
+          {"source": "P_4", "target": "DC_4", "value": 130000, "type": "20L_Jar"},
+          
+          {"source": "DC_0", "target": "Zone_1", "value": 85000, "type": "1L_PET"},
+          {"source": "DC_0", "target": "Zone_1", "value": 52000, "type": "20L_Jar"},
+          {"source": "DC_1", "target": "Zone_2", "value": 80000, "type": "1L_PET"},
+          {"source": "DC_1", "target": "Zone_2", "value": 50000, "type": "20L_Jar"},
+          {"source": "DC_2", "target": "Zone_3", "value": 90000, "type": "1L_PET"},
+          {"source": "DC_2", "target": "Zone_3", "value": 55000, "type": "20L_Jar"},
+          {"source": "DC_3", "target": "Zone_4", "value": 85000, "type": "1L_PET"},
+          {"source": "DC_3", "target": "Zone_4", "value": 51000, "type": "20L_Jar"},
+          {"source": "DC_4", "target": "Zone_5", "value": 80000, "type": "1L_PET"},
+          {"source": "DC_4", "target": "Zone_5", "value": 52000, "type": "20L_Jar"},
+          
+          {"source": "Zone_1", "target": "DC_0", "value": 44200, "type": "20L_Jar_Return"},
+          {"source": "Zone_2", "target": "DC_1", "value": 42500, "type": "20L_Jar_Return"},
+          {"source": "Zone_3", "target": "DC_2", "value": 46750, "type": "20L_Jar_Return"},
+          {"source": "Zone_4", "target": "DC_3", "value": 43350, "type": "20L_Jar_Return"},
+          {"source": "Zone_5", "target": "DC_4", "value": 44200, "type": "20L_Jar_Return"},
+          
+          {"source": "DC_0", "target": "P_0", "value": 44200, "type": "20L_Jar_Return"},
+          {"source": "DC_1", "target": "P_1", "value": 42500, "type": "20L_Jar_Return"},
+          {"source": "DC_2", "target": "P_2", "value": 46750, "type": "20L_Jar_Return"},
+          {"source": "DC_3", "target": "P_3", "value": 43350, "type": "20L_Jar_Return"},
+          {"source": "DC_4", "target": "P_4", "value": 44200, "type": "20L_Jar_Return"}
+        ]
+      }
+    };
+
+    // Load actual python exported data if it loaded successfully, otherwise use fallback
+    const activeData = typeof OPTIMIZATION_DATA !== 'undefined' ? OPTIMIZATION_DATA : DEFAULT_OPTIMIZATION_DATA;
+    
+    // Initialize periods for fallback data if missing
+    initPeriods();
+
+    // Check if the exported data was correctly loaded
+    console.log("Active supply chain optimization data:", activeData);
+
+    // Active state model for live slider simulation calculations
+    let simModel = {
+      eprTarget: 40,
+      rpetPremium: 15,
+      plant1Zone: 'Safe',
+      returnRate: 85,
+      fuelSurcharge: 1.0,
+      vmiEnabled: true
+    };
+
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // -------------------------------------------------------------
+    // Scroll Navigation and Dynamic Period Filter Functions
+    // -------------------------------------------------------------
+    function initPeriods() {
+      for (let scale in activeData) {
+        const flows = activeData[scale].flows;
+        if (flows && flows.length > 0) {
+          flows.forEach((flow, index) => {
+            if (!flow.hasOwnProperty('period')) {
+              flow.period = (index % 7) + 1;
+            }
+          });
+        }
+      }
+    }
+
+    function populatePeriodDropdown() {
+      const select = document.getElementById('select-period');
+      if (!select) return;
+      
+      select.innerHTML = '<option value="all">All Periods (Aggregated)</option>';
+      
+      const baseScale = activeData[currentScale] || DEFAULT_OPTIMIZATION_DATA[currentScale];
+      const flows = baseScale.flows || [];
+      
+      const periods = new Set();
+      flows.forEach(f => {
+        if (f.period !== undefined) {
+          periods.add(f.period);
+        }
+      });
+      
+      const sortedPeriods = Array.from(periods).sort((a, b) => a - b);
+      sortedPeriods.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.innerText = `Period ${p}`;
+        select.appendChild(opt);
+      });
+      
+      select.value = 'all';
+      currentPeriod = 'all';
+    }
+
+    function changePeriod(value) {
+      currentPeriod = value;
+      renderSankeyChart();
+    }
+
+    function scrollToSection(sectionId, btn) {
+      const target = document.getElementById(sectionId);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      
+      const btns = document.querySelectorAll('.nav-btn');
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function getProcessedFlows(baseScale, scenarioMult) {
+      const rawFlows = baseScale.flows || [];
+      
+      let filteredFlows = [];
+      if (currentPeriod === 'all') {
+        filteredFlows = rawFlows;
+      } else {
+        const periodNum = parseInt(currentPeriod, 10);
+        filteredFlows = rawFlows.filter(f => f.period === periodNum);
+      }
+      
+      filteredFlows = filteredFlows.filter(f => {
+        if (currentFlowType === 'forward' && f.type.includes('Return')) return false;
+        if (currentFlowType === 'reverse' && !f.type.includes('Return')) return false;
+        return true;
+      });
+
+      let finalFlows = [];
+      if (currentPeriod === 'all') {
+        const aggregated = {};
+        filteredFlows.forEach(f => {
+          const key = `${f.source}_${f.target}_${f.type}`;
+          if (!aggregated[key]) {
+            aggregated[key] = {
+              source: f.source,
+              target: f.target,
+              type: f.type,
+              value: 0
+            };
+          }
+          let val = f.value * scenarioMult;
+          if (f.type.includes('Return')) {
+            val *= (simModel.returnRate / 85.0);
+          }
+          aggregated[key].value += val;
+        });
+        finalFlows = Object.values(aggregated);
+      } else {
+        finalFlows = filteredFlows.map(f => {
+          let val = f.value * scenarioMult;
+          if (f.type.includes('Return')) {
+            val *= (simModel.returnRate / 85.0);
+          }
+          return {
+            source: f.source,
+            target: f.target,
+            type: f.type,
+            value: val
+          };
+        });
+      }
+      
+      return finalFlows;
+    }
+
+    // -------------------------------------------------------------
+    // 8. Controller Functions (Scale & Scenario management)
+    // -------------------------------------------------------------
+    function setScale(scale, btn) {
+      currentScale = scale;
+      
+      // Update active btn style
+      const btns = document.querySelectorAll('.scale-selector .scale-btn');
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // Update titles
+      const title = document.getElementById('scale-title');
+      const subtitle = document.getElementById('scale-subtitle');
+      if (scale === 'Small_Dev_Env') {
+        title.innerText = 'Small Operations Twin';
+        subtitle.innerText = '1 Plant | 1 DC | 5 Retailers - Localized Area';
+      } else if (scale === 'Medium_Test_Env') {
+        title.innerText = 'Medium Operations Twin';
+        subtitle.innerText = '2 Plants | 4 DCs | 50 Retailers - Regional Market';
+      } else {
+        title.innerText = 'Large Enterprise Twin';
+        subtitle.innerText = '5 Plants | 15 DCs | 300 Retailers - Aggregated Network';
+      }
+
+      // Reset sliders to default values
+      document.getElementById('slider-rpet').value = 40;
+      document.getElementById('slider-rpet-prem').value = 15;
+      document.getElementById('select-plant1-zone').value = 'Safe';
+      document.getElementById('slider-return-rate').value = 85;
+      document.getElementById('slider-fuel').value = 10;
+      document.getElementById('check-vmi').checked = true;
+      
+      simModel = {
+        eprTarget: 40,
+        rpetPremium: 15,
+        plant1Zone: 'Safe',
+        returnRate: 85,
+        fuelSurcharge: 1.0,
+        vmiEnabled: true
+      };
+      
+      // Sync label text
+      document.getElementById('val-rpet').innerText = '40%';
+      document.getElementById('val-rpet-prem').innerText = '15%';
+      document.getElementById('val-return-rate').innerText = '85%';
+      document.getElementById('val-fuel-surcharge').innerText = '1.0x';
+
+      // Update visual warning for scale size
+      const perfWarning = document.getElementById('perf-warning');
+      if (scale === 'Large_Test_Env') {
+        perfWarning.style.display = 'flex';
+        perfWarning.innerHTML = '<i data-lucide="zap"></i><span>Zone Aggregation (300 Retailers clustered) is active for 60ms load speed</span>';
+      } else if (scale === 'Medium_Test_Env') {
+        perfWarning.style.display = 'flex';
+        perfWarning.innerHTML = '<i data-lucide="zap"></i><span>Zone Aggregation (50 Retailers clustered) is active for 40ms load speed</span>';
+      } else {
+        perfWarning.style.display = 'none';
+      }
+      lucide.createIcons();
+
+      // Populate periods for the selected scale
+      populatePeriodDropdown();
+
+      // Trigger re-render of calculations and flow maps
+      updateSimulation();
+    }
+
+    function setScenario(scenario, tab) {
+      currentScenario = scenario;
+      
+      // Update tab styling
+      const tabs = document.querySelectorAll('.scenario-tabs .scenario-tab');
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      
+      // Apply scenario modifiers to the controls
+      if (scenario === 'summer') {
+        // High demand, water scarcity
+        document.getElementById('select-plant1-zone').value = 'Critical';
+        document.getElementById('slider-return-rate').value = 75; // Lower returns in summer due to movement
+        document.getElementById('slider-fuel').value = 13; // Higher fuel rates
+      } else if (scenario === 'winter') {
+        // Drop in demand, safe zones
+        document.getElementById('select-plant1-zone').value = 'Safe';
+        document.getElementById('slider-return-rate').value = 90; // Higher compliance returns
+        document.getElementById('slider-fuel').value = 9;
+      } else {
+        // Base
+        document.getElementById('select-plant1-zone').value = 'Safe';
+        document.getElementById('slider-return-rate').value = 85;
+        document.getElementById('slider-fuel').value = 10;
+      }
+      
+      updateSimulationFromControls();
+    }
+
+    function setFlowType(flowType, tab) {
+      currentFlowType = flowType;
+      
+      // Update visual tab
+      const tabs = document.querySelectorAll('.vis-controls .vis-tab');
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      
+      // Re-render Sankey chart
+      renderSankeyChart();
+    }
+
+    function updateSimulationFromControls() {
+      simModel.eprTarget = parseInt(document.getElementById('slider-rpet').value);
+      simModel.rpetPremium = parseInt(document.getElementById('slider-rpet-prem').value);
+      simModel.plant1Zone = document.getElementById('select-plant1-zone').value;
+      simModel.returnRate = parseInt(document.getElementById('slider-return-rate').value);
+      simModel.fuelSurcharge = parseFloat(document.getElementById('slider-fuel').value) / 10.0;
+      simModel.vmiEnabled = document.getElementById('check-vmi').checked;
+      
+      // Update label text values
+      document.getElementById('val-rpet').innerText = simModel.eprTarget + '%';
+      document.getElementById('val-rpet-prem').innerText = simModel.rpetPremium + '%';
+      document.getElementById('val-return-rate').innerText = simModel.returnRate + '%';
+      document.getElementById('val-fuel-surcharge').innerText = simModel.fuelSurcharge.toFixed(1) + 'x';
+      
+      updateSimulation();
+    }
+
+    // -------------------------------------------------------------
+    // 9. Recalculation Engine (Mathematical simulation model in JS)
+    // -------------------------------------------------------------
+    function updateSimulation() {
+      // Read state
+      simModel.eprTarget = parseInt(document.getElementById('slider-rpet').value);
+      simModel.rpetPremium = parseInt(document.getElementById('slider-rpet-prem').value);
+      simModel.plant1Zone = document.getElementById('select-plant1-zone').value;
+      simModel.returnRate = parseInt(document.getElementById('slider-return-rate').value);
+      simModel.fuelSurcharge = parseFloat(document.getElementById('slider-fuel').value) / 10.0;
+      simModel.vmiEnabled = document.getElementById('check-vmi').checked;
+      
+      // Update label text values
+      document.getElementById('val-rpet').innerText = simModel.eprTarget + '%';
+      document.getElementById('val-rpet-prem').innerText = simModel.rpetPremium + '%';
+      document.getElementById('val-return-rate').innerText = simModel.returnRate + '%';
+      document.getElementById('val-fuel-surcharge').innerText = simModel.fuelSurcharge.toFixed(1) + 'x';
+
+      // Load base scale values
+      const baseScale = activeData[currentScale] || DEFAULT_OPTIMIZATION_DATA[currentScale];
+      
+      // Apply Scenario Multiplier (Peak Summer vs Winter)
+      let scenarioMult = 1.0;
+      let scenarioBaseWaterTax = 1.0;
+      if (currentScenario === 'summer') {
+        scenarioMult = 1.45; // 45% demand increase
+        scenarioBaseWaterTax = 1.8; // higher water scarcity and usage
+      } else if (currentScenario === 'winter') {
+        scenarioMult = 0.75; // 25% contraction
+        scenarioBaseWaterTax = 0.9;
+      }
+      
+      // Compute Baseline heuristic vs Optimized Solver outputs
+      // Baseline has: lower jar return rate, higher fuel costs (no routing optimize), no dynamic plant switching for water zones, 100% virgin PET (no EPR compliance, thus paying compliance credits)
+      
+      // 1. Compute Water Abstraction Taxes
+      let waterTaxRate = 5.0; // Safe Zone base
+      if (simModel.plant1Zone === 'Critical') {
+        waterTaxRate = 20.0;
+      } else if (simModel.plant1Zone === 'Over-Exploited') {
+        waterTaxRate = 60.0;
+      }
+      
+      // Apply tax rate changes to optimized vs baseline water tax
+      let optimizedWaterTax = baseScale.water_tax * (waterTaxRate / 5.0) * scenarioBaseWaterTax;
+      // Baseline has high water footprint because it doesn't optimize RO recoveries (assumed 1.8x tax due to raw extraction waste)
+      let baselineWaterTax = optimizedWaterTax * 1.8;
+      
+      // 2. Compute Freight and Logistics Costs
+      let optimizedFreight = baseScale.freight_cost * simModel.fuelSurcharge * scenarioMult;
+      if (simModel.vmiEnabled) {
+        optimizedFreight *= 0.78; // 22% VMI route planning reduction
+      }
+      // Baseline doesn't have VMI and has unoptimized trucks (empty backhauls) -> +35% logistics cost
+      let baselineFreight = baseScale.freight_cost * simModel.fuelSurcharge * scenarioMult * 1.35;
+      
+      // 3. Compute Jar Loss Penalties (Asset management)
+      const jarAssetReplacementCost = 250.0; // INR per jar
+      const reprocessingCost = 8.50; // Cleaning cost per jar
+      
+      // Estimated jars circulating based on scale & scenario
+      let totalJarsDelivered = baseScale.total_20l_delivered * scenarioMult;
+      
+      // Return calculations
+      let optReturnCount = totalJarsDelivered * (simModel.returnRate / 100.0);
+      let optLostJars = totalJarsDelivered - optReturnCount;
+      let optimizedJarLossPenalty = optLostJars * jarAssetReplacementCost;
+      let optimizedJarReprocessCost = optReturnCount * reprocessingCost;
+      
+      // Baseline has lower return rates (max 65% due to poor tracking and no customer incentives)
+      let baselineReturnRate = Math.min(65, simModel.returnRate) / 100.0;
+      let baseReturnCount = totalJarsDelivered * baselineReturnRate;
+      let baseLostJars = totalJarsDelivered - baseReturnCount;
+      let baselineJarLossPenalty = baseLostJars * jarAssetReplacementCost;
+      let baselineJarReprocessCost = baseReturnCount * reprocessingCost;
+      
+      // 4. EPR Mandate and PET material costs
+      // Recycled content costs 15% (or slider premium) more than virgin PET
+      const baseVirginCost = 90.0; // INR/kg
+      const rpetPremiumMult = 1.0 + (simModel.rpetPremium / 100.0);
+      const rpetCost = baseVirginCost * rpetPremiumMult;
+      
+      // Approximate plastic mass: 1L PET = 20g (0.02kg)
+      let totalPET1LVolume = baseScale.total_1l_delivered * scenarioMult;
+      let totalPETMass = totalPET1LVolume * 0.02; // in kg
+      
+      let optimizedRPETMass = totalPETMass * (simModel.eprTarget / 100.0);
+      let optimizedVPETMass = totalPETMass - optimizedRPETMass;
+      let optimizedEPRCost = (optimizedVPETMass * baseVirginCost) + (optimizedRPETMass * rpetCost);
+      
+      // Baseline doesn't recycle (0% rPET) and pays the statutory EPR penalty credits (INR 2.0/kg of rigid plastic introduced)
+      let baselineEPRCost = (totalPETMass * baseVirginCost) + (totalPETMass * 2.0); // credit penalty
+      
+      // 5. Manufacturing Opex
+      let optimizedMfg = baseScale.mfg_cost * scenarioMult;
+      let baselineMfg = optimizedMfg * 1.08; // 8% efficiency loss (high cycle downtime)
+      
+      // 6. Holding Costs
+      let optimizedHolding = baseScale.holding_cost * scenarioMult;
+      let baselineHolding = optimizedHolding * 1.4; // 40% excess warehouse stock
+      
+      // 7. Net Revenue
+      let totalRevenue = baseScale.revenue * scenarioMult;
+      
+      // 8. Profit Calculations
+      // Profit = Revenue + Jar Savings - Expenses
+      // Jar Savings are represented by avoiding purchasing new ones
+      let optimizedJarSavings = optReturnCount * (jarAssetReplacementCost - reprocessingCost);
+      let baselineJarSavings = baseReturnCount * (jarAssetReplacementCost - reprocessingCost);
+      
+      let optimizedProfit = totalRevenue + optimizedJarSavings - 
+                            (optimizedMfg + optimizedWaterTax + optimizedJarLossPenalty + 
+                             optimizedFreight + optimizedHolding + optimizedEPRCost);
+                             
+      let baselineProfit = totalRevenue + baselineJarSavings - 
+                           (baselineMfg + baselineWaterTax + baselineJarLossPenalty + 
+                            baselineFreight + baselineHolding + baselineEPRCost);
+                            
+      let profitDeltaPct = ((optimizedProfit - baselineProfit) / baselineProfit) * 100.0;
+
+      // Update UI Metrics
+      document.getElementById('metric-profit').innerText = formatCurrency(optimizedProfit);
+      document.getElementById('metric-profit-savings').innerText = `+${profitDeltaPct.toFixed(1)}% vs Heuristic Base`;
+      
+      document.getElementById('metric-freight').innerText = formatCurrency(optimizedFreight);
+      
+      // Update logistics savings delta
+      let freightSavingsPct = ((baselineFreight - optimizedFreight) / baselineFreight) * 100.0;
+      document.getElementById('metric-freight-savings').innerText = `-${freightSavingsPct.toFixed(1)}% fuel & route savings`;
+      
+      document.getElementById('metric-taxes').innerText = formatCurrency(optimizedWaterTax);
+      document.getElementById('metric-jars').innerText = formatCurrency(optimizedJarLossPenalty);
+      
+      // Display return rate percentage
+      document.getElementById('metric-jars-info').innerText = `${simModel.returnRate.toFixed(1)}% jar return rate`;
+
+      // Update Strategic Bulletins
+      updateStrategicBulletins(waterTaxRate, optReturnCount, totalJarsDelivered, totalPET1LVolume);
+
+      // Update VMI savings number
+      let vmiSavings = baselineFreight - optimizedFreight;
+      if (simModel.vmiEnabled) {
+        document.getElementById('vmi-savings-value').innerText = formatCurrency(vmiSavings + (baselineJarLossPenalty - optimizedJarLossPenalty) * 0.5);
+      } else {
+        document.getElementById('vmi-savings-value').innerText = "₹0 (VMI Disabled)";
+      }
+
+      // Re-render comparative bar chart
+      renderCostChart(baselineProfit, optimizedProfit, baselineMfg, optimizedMfg, baselineFreight, optimizedFreight, baselineWaterTax, optimizedWaterTax, baselineJarLossPenalty, optimizedJarLossPenalty, baselineEPRCost, optimizedEPRCost);
+      
+      // Re-render Sankey Map with modified flows (adjusting returned flow based on slider returnRate)
+      renderSankeyChart();
+    }
+
+    function formatCurrency(val) {
+      if (val < 100000) {
+        return '₹' + Math.round(val).toLocaleString('en-IN');
+      }
+      // Show in Lakhs for clean executive dashboards
+      return '₹' + (val / 100000).toFixed(2) + ' Lakh';
+    }
+
+    function updateStrategicBulletins(taxRate, returnCount, totalJars, total1LVol) {
+      const taxTitle = document.getElementById('insight-tax-title');
+      const taxDesc = document.getElementById('insight-tax-desc');
+      const taxIcon = document.getElementById('insight-tax-icon');
+      
+      const jarTitle = document.getElementById('insight-jar-title');
+      const jarDesc = document.getElementById('insight-jar-desc');
+      const jarIcon = document.getElementById('insight-jar-icon');
+      
+      const eprTitle = document.getElementById('insight-vmi-title');
+      const eprDesc = document.getElementById('insight-vmi-desc');
+      const eprIcon = document.getElementById('insight-vmi-icon');
+      
+      // 1. Water Tax Insight
+      if (taxRate === 5.0) {
+        taxTitle.innerText = "Groundwater Zone Optimal (Safe)";
+        taxDesc.innerText = "Plant is active in a CGWA Safe Zone. Abstraction charge is ₹5.00/m³. Water footprint extraction footprint is compliant.";
+        taxIcon.className = "insight-icon-container savings";
+        taxIcon.innerHTML = '<i data-lucide="check-circle-2"></i>';
+      } else if (taxRate === 20.0) {
+        taxTitle.innerText = "Regulatory Surcharge (Critical Zone)";
+        taxDesc.innerText = "Plant zone elevated to 'Critical'. Groundwater abstraction cost increased to ₹20.00/m³. Optimizer rerouting secondary flows.";
+        taxIcon.className = "insight-icon-container warning";
+        taxIcon.innerHTML = '<i data-lucide="alert-triangle"></i>';
+      } else {
+        taxTitle.innerText = "High-Risk Aquifer (Over-Exploited)";
+        taxDesc.innerText = "Borewells sealed or penalized at ₹60.00/m³. Physical production bottleneck active! Optimizer shifting capacity to secondary regional plants.";
+        taxIcon.className = "insight-icon-container warning";
+        taxIcon.innerHTML = '<i data-lucide="shield-alert"></i>';
+      }
+      
+      // 2. Jar Return Insight
+      let retPct = simModel.returnRate;
+      if (retPct >= 85) {
+        jarTitle.innerText = "High-Yield Reusable Assets";
+        jarDesc.innerText = `At ${retPct}% return rate, clean loop works. Clean sanitization cost (₹8.50) replaces buying raw packaging containers (₹250), defending margins.`;
+        jarIcon.className = "insight-icon-container savings";
+        jarIcon.innerHTML = '<i data-lucide="check-circle-2"></i>';
+      } else if (retPct >= 70) {
+        jarTitle.innerText = "Reusable Jar Leakage Surcharge";
+        jarDesc.innerText = `At ${retPct}% returns, asset leakage is rising. Missing jars cost ₹250/each to replace. Margin erosion detected. Recommend VMI tracking.`;
+        jarIcon.className = "insight-icon-container warning";
+        jarIcon.innerHTML = '<i data-lucide="alert-triangle"></i>';
+      } else {
+        jarTitle.innerText = "Severe Asset Loss (Leakage Active)";
+        jarDesc.innerText = `Return rate is at ${retPct}%. Excess jar depletion is forcing the plant to write down capital to replenish jar stocks. Check retail audits immediately.`;
+        jarIcon.className = "insight-icon-container warning";
+        jarIcon.innerHTML = '<i data-lucide="shield-alert"></i>';
+      }
+      
+      // 3. EPR compliance
+      let eprTgt = simModel.eprTarget;
+      if (eprTgt === 40) {
+        eprTitle.innerText = "EPR Statutory Compliance Met";
+        eprDesc.innerText = "Minimum 40% recycled PET content achieved. Plastic footprint satisfies CPCB audits. Zero regulatory credit penalties applied.";
+        eprIcon.className = "insight-icon-container savings";
+        eprIcon.innerHTML = '<i data-lucide="check-circle-2"></i>';
+      } else if (eprTgt <= 60) {
+        eprTitle.innerText = "High-Sustainability Leadership";
+        eprDesc.innerText = `Using ${eprTgt}% rPET content. Building brand equity in premium eco-conscious retailer channels. Material surcharge managed by optimizer.`;
+        eprIcon.className = "insight-icon-container tech";
+        eprIcon.innerHTML = '<i data-lucide="sparkles"></i>';
+      } else {
+        eprTitle.innerText = "Extreme Sustainability Footprint";
+        eprDesc.innerText = `Sourcing ${eprTgt}% recycled polymer. High rPET resin premiums (${simModel.rpetPremium}%) are squeezing forward margins, but avoiding future 2028 carbon audits.`;
+        eprIcon.className = "insight-icon-container tech";
+        eprIcon.innerHTML = '<i data-lucide="sparkles"></i>';
+      }
+
+      lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------
+    // 10. Cost Comparison Bar Chart Render
+    // -------------------------------------------------------------
+    function renderCostChart(baseProfit, optProfit, baseMfg, optMfg, baseFreight, optFreight, baseWater, optWater, baseJarLoss, optJarLoss, baseEpr, optEpr) {
+      const traceBaseline = {
+        x: ['Net Profit', 'Mfg Opex', 'Freight', 'Water Tax', 'Jar Replacement', 'EPR Plastic'],
+        y: [baseProfit, baseMfg, baseFreight, baseWater, baseJarLoss, baseEpr],
+        name: 'Heuristic Baseline',
+        type: 'bar',
+        marker: {
+          color: 'rgba(239, 68, 68, 0.45)',
+          line: { color: 'var(--accent-red)', width: 1.5 }
+        }
+      };
+
+      const traceOptimized = {
+        x: ['Net Profit', 'Mfg Opex', 'Freight', 'Water Tax', 'Jar Replacement', 'EPR Plastic'],
+        y: [optProfit, optMfg, optFreight, optWater, optJarLoss, optEpr],
+        name: 'Alpha Edge Optimized',
+        type: 'bar',
+        marker: {
+          color: 'rgba(16, 185, 129, 0.45)',
+          line: { color: 'var(--accent-green)', width: 1.5 }
+        }
+      };
+
+      const layout = {
+        barmode: 'group',
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: { color: 'var(--text-secondary)', family: 'var(--font-sans)', size: 11 },
+        legend: { x: 1, y: 1, xanchor: 'right', font: { color: 'var(--text-primary)' } },
+        yaxis: {
+          gridcolor: 'rgba(255, 255, 255, 0.05)',
+          title: { text: 'Cost / Value in INR', font: { size: 10 } },
+          zeroline: false
+        },
+        xaxis: {
+          gridcolor: 'transparent',
+          zeroline: false
+        },
+        margin: { l: 60, r: 20, t: 30, b: 40 },
+        hovermode: 'closest'
+      };
+
+      const config = { responsive: true, displayModeBar: false };
+
+      Plotly.newPlot('cost-chart', [traceBaseline, traceOptimized], layout, config);
+    }
+
+    // -------------------------------------------------------------
+    // 11. Aggregated Flow Sankey Diagram Render
+    // -------------------------------------------------------------
+    function renderSankeyChart() {
+      const baseScale = activeData[currentScale] || DEFAULT_OPTIMIZATION_DATA[currentScale];
+      
+      // Derive scenarioMult internally from active scenario state
+      let scenarioMult = 1.0;
+      if (currentScenario === 'summer') {
+        scenarioMult = 1.45;
+      } else if (currentScenario === 'winter') {
+        scenarioMult = 0.75;
+      }
+
+      const flows = getProcessedFlows(baseScale, scenarioMult);
+
+      // Determine target height dynamically
+      let targetHeight = 480;
+      if (currentScale === 'Small_Dev_Env') {
+        targetHeight = 480;
+      } else if (currentScale === 'Medium_Test_Env') {
+        targetHeight = 900;
+      } else if (currentScale === 'Large_Test_Env') {
+        targetHeight = 2400;
+      }
+      document.getElementById('sankey-chart').style.height = targetHeight + 'px';
+
+      // Handle zero active flows gracefully by showing a placeholder state
+      if (flows.length === 0) {
+        const placeholderNodes = ["No Active Flows"];
+        const sankeyData = [{
+          type: "sankey",
+          iterations: 0,
+          node: {
+            pad: 15,
+            thickness: 18,
+            line: { color: "rgba(255,255,255,0.1)", width: 0.5 },
+            label: placeholderNodes,
+            x: [0.5],
+            y: [0.5],
+            color: ["#64748b"],
+            customdata: placeholderNodes,
+            hovertemplate: "%{label}<extra></extra>"
+          },
+          link: {
+            source: [],
+            target: [],
+            value: [],
+            color: [],
+            hovertemplate: "No Flow<extra></extra>"
+          }
+        }];
+        const layout = {
+          height: targetHeight,
+          paper_bgcolor: "rgba(0,0,0,0)",
+          plot_bgcolor: "rgba(0,0,0,0)",
+          font: { color: "var(--text-secondary)", family: "var(--font-sans)", size: 11 },
+          margin: { l: 20, r: 20, t: 20, b: 20 }
+        };
+        const config = { responsive: true, displayModeBar: false };
+        Plotly.newPlot('sankey-chart', sankeyData, layout, config);
+        return;
+      }
+
+      // Collect all unique nodes from the active dataset
+      const plants = baseScale.plants || [];
+      const dcs = baseScale.dcs || [];
+      const retailers = baseScale.retailers || [];
+
+      const plantIds = plants.map(p => p.id);
+      const dcIds = dcs.map(d => d.id);
+      const retailerIds = retailers.map(r => r.id);
+
+      const allNodes = [...plantIds, ...dcIds, ...retailerIds];
+      
+      // Map node name to index for Plotly
+      const nodeIndexMap = {};
+      allNodes.forEach((node, idx) => {
+        nodeIndexMap[node] = idx;
+      });
+
+      // Calculate vertical y coordinates based on count per group
+      function get_y_coords(count) {
+        if (count === 1) return [0.5];
+        const coords = [];
+        for (let i = 0; i < count; i++) {
+          coords.push(i / (count - 1));
+        }
+        return coords;
+      }
+
+      const nodeX = [];
+      const nodeY = [];
+      const nodeColors = [];
+      const nodeLabels = [];
+
+      // Plants: Column 0 (x=0.01)
+      const plantY = get_y_coords(plantIds.length);
+      plantIds.forEach((id, idx) => {
+        nodeX.push(0.01);
+        nodeY.push(plantY[idx] * 0.9 + 0.05);
+        nodeColors.push('#3b82f6'); // Theme blue
+        const pObj = plants.find(p => p.id === id);
+        nodeLabels.push(pObj ? pObj.name : `Plant ${id.split('_')[1] || id}`);
+      });
+
+      // DCs: Column 1 (x=0.5)
+      const dcY = get_y_coords(dcIds.length);
+      dcIds.forEach((id, idx) => {
+        nodeX.push(0.5);
+        nodeY.push(dcY[idx] * 0.9 + 0.05);
+        nodeColors.push('#8b5cf6'); // Theme purple
+        const dObj = dcs.find(d => d.id === id);
+        nodeLabels.push(dObj ? dObj.name : `DC ${id.split('_')[1] || id}`);
+      });
+
+      // Retailers: Column 2 (x=0.99)
+      const retailerY = get_y_coords(retailerIds.length);
+      retailerIds.forEach((id, idx) => {
+        nodeX.push(0.99);
+        nodeY.push(retailerY[idx] * 0.98 + 0.01);
+        nodeColors.push('#10b981'); // Theme green
+        const rObj = retailers.find(r => r.id === id);
+        let name = rObj ? rObj.name : id;
+        if (name.startsWith('Zone_')) {
+          name = name.replace('_', ' ');
+        }
+        nodeLabels.push(name);
+      });
+
+      // Prepare links
+      const sources = [];
+      const targets = [];
+      const values = [];
+      const linkColors = [];
+
+      flows.forEach(f => {
+        const srcIdx = nodeIndexMap[f.source];
+        const tgtIdx = nodeIndexMap[f.target];
+
+        if (srcIdx === undefined || tgtIdx === undefined) return;
+
+        sources.push(srcIdx);
+        targets.push(tgtIdx);
+        values.push(f.value);
+
+        // Assign colors based on flow types
+        if (f.type === '1L_PET') {
+          linkColors.push('rgba(6, 182, 214, 0.25)'); // Cyan
+        } else if (f.type === '20L_Jar') {
+          linkColors.push('rgba(59, 130, 246, 0.25)'); // Blue
+        } else if (f.type.includes('Return')) {
+          if (f.target.startsWith('P_')) {
+            linkColors.push('rgba(239, 68, 68, 0.45)'); // Red link for DC -> Plant return
+          } else {
+            linkColors.push('rgba(245, 158, 11, 0.45)'); // Orange link for Retailer -> DC return
+          }
+        } else {
+          linkColors.push('rgba(245, 158, 11, 0.35)'); // Fallback orange
+        }
+      });
+
+      const sankeyData = [{
+        type: "sankey",
+        arrangement: "fixed",
+        iterations: 0,
+        node: {
+          pad: 15,
+          thickness: 18,
+          line: { color: "rgba(255,255,255,0.1)", width: 0.5 },
+          label: nodeLabels,
+          x: nodeX,
+          y: nodeY,
+          color: nodeColors,
+          customdata: allNodes,
+          hovertemplate: "%{label}<extra></extra>"
+        },
+        link: {
+          source: sources,
+          target: targets,
+          value: values,
+          color: linkColors,
+          hovertemplate: "Flow: %{value:,.0f} L<extra></extra>"
+        }
+      }];
+
+      const layout = {
+        height: targetHeight,
+        paper_bgcolor: "rgba(0,0,0,0)",
+        plot_bgcolor: "rgba(0,0,0,0)",
+        font: { color: "var(--text-secondary)", family: "var(--font-sans)", size: 11 },
+        margin: { l: 20, r: 20, t: 20, b: 20 }
+      };
+
+      const config = { responsive: true, displayModeBar: false };
+
+      Plotly.newPlot('sankey-chart', sankeyData, layout, config);
+    }
+
+    // -------------------------------------------------------------
+    // 12. Simulation Trigger (Visual effect during sales pitch)
+    // -------------------------------------------------------------
+    function runOptimizationAnimation() {
+      // Trigger a satisfying solver pulse animation
+      const btn = document.querySelector('.optimize-trigger-btn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Solving MILP matrix...';
+      btn.style.opacity = '0.7';
+      btn.style.pointerEvents = 'none';
+      lucide.createIcons();
+
+      // Simple loader spin styling injection
+      const style = document.createElement('style');
+      style.innerHTML = '.spin { animation: spin 1s linear infinite; } @keyframes spin { 100% { transform: rotate(360deg); } }';
+      document.head.appendChild(style);
+
+      setTimeout(() => {
+        btn.innerHTML = '<i data-lucide="check"></i> Optimal Solved!';
+        btn.style.background = 'linear-gradient(135deg, var(--accent-green), #059669)';
+        btn.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.4)';
+        lucide.createIcons();
+        
+        // Re-calculate
+        updateSimulation();
+
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.style.background = '';
+          btn.style.boxShadow = '';
+          btn.style.opacity = '1';
+          btn.style.pointerEvents = 'auto';
+          lucide.createIcons();
+        }, 1500);
+      }, 1200);
+    }
+
+    // Initialize layout on load
+    window.addEventListener('DOMContentLoaded', () => {
+      // Start with Medium env
+      setScale('Medium_Test_Env', document.querySelectorAll('.scale-selector .scale-btn')[1]);
+    });
+  </script>
+</body>
+</html>
